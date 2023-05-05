@@ -109,6 +109,12 @@ The `PromiseStruct` type represents a promise that will be resolved with a value
 
 `Finally` creates a new promise
 
+## Testing
+
+```bash
+go test
+```
+
 ## Support
 
 Asyncify is an MIT-licensed open source project. It can grow thanks to the sponsors and support.
