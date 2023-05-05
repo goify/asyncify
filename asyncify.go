@@ -97,3 +97,18 @@ func (p *Promise) Catch(fn func(error) interface{}) *Promise {
 
 	return promise
 }
+
+// Await blocks until the promise is resolved or rejected,
+// then returns the result or error respectively.
+// If the promise is resolved, the first return value is the result
+// and the second is nil.
+// If the promise is rejected, the first return value is nil
+// and the second is the error.
+func (p *Promise) Await() (interface{}, error) {
+	select {
+	case val := <-p.result:
+		return val, nil
+	case err := <-p.err:
+		return nil, err
+	}
+}
