@@ -56,6 +56,35 @@ func main() {
 
 In this example, a new `promise` is created with an asynchronous operation that takes 2 seconds to complete. The `then` handler is used to handle the successful resolution of the promise, the `catch` handler is used to handle any errors that may occur, and the `finally` handler is used to handle either case.
 
+### Usage with `Await`
+
+Here's an example of how to use the `Await` method to block the execution of the program until the promise resolves or rejects:
+
+```go
+func main() {
+  promise := Promise(func(resolve func(interface{}), reject func(error)) {
+    // Do some asynchronous operation here
+    time.Sleep(2 * time.Second)
+
+    if true {
+      resolve("Success!")
+    } else {
+      reject(errors.New("Error!"))
+    }
+  })
+
+  result, err := promise.Await()
+
+  if err != nil {
+    // Handle error
+    fmt.Println(err.Error())
+  } else {
+    // Handle result
+    fmt.Println(result)
+  }
+}
+```
+
 ## Support
 
 Asyncify is an MIT-licensed open source project. It can grow thanks to the sponsors and support.
