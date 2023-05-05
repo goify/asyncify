@@ -15,6 +15,47 @@ To use this module in your Go project, run the following command:
 go get github.com/iamando/asyncify
 ```
 
+## Implementation
+
+This Go module provides a simple implementation of Promises in JavaScript with support for `then`, `catch`, and `finally` handlers.
+
+### Usage with `then`, `catch`, and `finally`
+
+Here's an example of how to use the promise type with `then`, `catch`, and `finally`:
+
+```go
+func main() {
+  promise := Promise(func(resolve func(interface{}), reject func(error)) {
+    // Do some asynchronous operation here
+    time.Sleep(2 * time.Second)
+
+    if true {
+      resolve("Success!")
+    } else {
+      reject(errors.New("Error!"))
+    }
+  })
+
+  promise
+    .Then(func(result interface{}) interface{} {
+      // Handle fulfilled promise
+      fmt.Println(result)
+      return "Done!"
+    })
+    .Catch(func(err error) interface{} {
+      // Handle rejected promise
+      fmt.Println(err.Error())
+      return "Done!"
+    })
+    .Finally(func() {
+      // Handle either case
+      fmt.Println("Finished!")
+    })
+}
+```
+
+In this example, a new `promise` is created with an asynchronous operation that takes 2 seconds to complete. The `then` handler is used to handle the successful resolution of the promise, the `catch` handler is used to handle any errors that may occur, and the `finally` handler is used to handle either case.
+
 ## Support
 
 Asyncify is an MIT-licensed open source project. It can grow thanks to the sponsors and support.
