@@ -85,6 +85,30 @@ func main() {
 }
 ```
 
+In this example, a new `promise` is created with an asynchronous operation that takes 2 seconds to complete. The `Await` method is used to block the execution of the program until the promise resolves or rejects. If the promise is resolved, the result is returned. If the promise is rejected, an error is returned.
+
+## API
+
+### type `PromiseStruct`
+
+The `PromiseStruct` type represents a promise that will be resolved with a value or rejected with an error. It has the following methods:
+
+### `Promise(executor func(resolve func(interface{}), reject func(error))) *PromiseStruct`
+
+`Promise` creates a new promise with an executor function that takes two functions as arguments: `resolve` and `reject`. `resolve` should be called with the result of the promise when it is successfully resolved, and `reject` should be called with an error if the promise is rejected.
+
+### `Then(fn func(interface{}) interface{}) *PromiseStruct`
+
+`Then` creates a new promise that is resolved with the result of the `fn` function when the original promise is fulfilled. If the original promise is rejected, the new promise is rejected with the same error.
+
+### `Catch(fn func(error) interface{}) *PromiseStruct`
+
+`Catch` creates a new promise that is resolved with the result of the `fn` function when the original promise is rejected. If the original promise is fulfilled, the new promise is resolved with the same result.
+
+### `Finally(fn func()) *PromiseStruct`
+
+`Finally` creates a new promise
+
 ## Support
 
 Asyncify is an MIT-licensed open source project. It can grow thanks to the sponsors and support.
