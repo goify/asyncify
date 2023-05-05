@@ -109,6 +109,10 @@ The `PromiseStruct` type represents a promise that will be resolved with a value
 
 `Finally` creates a new promise
 
+### `Await() (interface{}, error)`
+
+The `Await` function is a blocking function that allows you to wait for a promise to resolve or reject. It waits until the promise state changes from `pending` to either `fulfilled` or `rejected`. If the promise is fulfilled, `Await` returns nil, and if the promise is rejected, it returns the error that caused the rejection.
+
 ## Testing
 
 ```bash
