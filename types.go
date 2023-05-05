@@ -1,3 +1,6 @@
 package asyncify
 
-type asyncFunc func() (interface{}, error)
+type Promise struct {
+	result chan interface{}
+	err    chan error
+}
