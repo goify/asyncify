@@ -24,8 +24,12 @@ This Go module provides a simple implementation of Promises in JavaScript with s
 Here's an example of how to use the promise type with `then`, `catch`, and `finally`:
 
 ```go
+package main
+
+import "github.com/iamando/asyncify"
+
 func main() {
-  promise := Promise(func(resolve func(interface{}), reject func(error)) {
+  promise := asyncify.Promise(func(resolve func(interface{}), reject func(error)) {
     // Do some asynchronous operation here
     time.Sleep(2 * time.Second)
 
@@ -36,18 +40,15 @@ func main() {
     }
   })
 
-  promise
-    .Then(func(result interface{}) interface{} {
+  promise.Then(func(result interface{}) interface{} {
       // Handle fulfilled promise
       fmt.Println(result)
       return "Done!"
-    })
-    .Catch(func(err error) interface{} {
+    }).Catch(func(err error) interface{} {
       // Handle rejected promise
       fmt.Println(err.Error())
       return "Done!"
-    })
-    .Finally(func() {
+    }).Finally(func() {
       // Handle either case
       fmt.Println("Finished!")
     })
@@ -61,8 +62,12 @@ In this example, a new `promise` is created with an asynchronous operation that 
 Here's an example of how to use the `Await` method to block the execution of the program until the promise resolves or rejects:
 
 ```go
+package main
+
+import "github.com/iamando/asyncify"
+
 func main() {
-  promise := Promise(func(resolve func(interface{}), reject func(error)) {
+  promise := asyncify.Promise(func(resolve func(interface{}), reject func(error)) {
     // Do some asynchronous operation here
     time.Sleep(2 * time.Second)
 
