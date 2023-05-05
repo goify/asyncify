@@ -36,7 +36,9 @@ func Reject(err error) *Promise {
 // The callback function is invoked when the promise is resolved, and the
 // value returned by the callback is used to resolve the new promise that
 // is returned by this function. If the callback throws an error, the new
-// promise is rejected with the error.
+// promise is rejected with the error. The callback function can return a
+// value or a Promise object, and the new promise returned by this method
+// will be resolved or rejected based on the result of the callback.
 func (p *Promise) Then(fn func(interface{}) interface{}) *Promise {
 	promise := &Promise{
 		result: make(chan interface{}),
@@ -61,4 +63,37 @@ func (p *Promise) Then(fn func(interface{}) interface{}) *Promise {
 	}()
 
 	return promise
+}
+
+// Catch appends a new error callback function to the promise's `callbacks` list.
+// The callback function is invoked when the promise is rejected, and the value
+// returned by the callback is used to resolve the new promise that is returned
+// by this function. If the callback throws an error, the new promise is rejected
+// with the error. The callback function can return a value or a Promise object,
+// and the new promise returned by this method will be resolved or rejected based
+// on the result of the callback.
+func (p *Promise) Catch(fn func(error) interface{}) *Promise {
+	newPromise := &Promise{
+		result: make(chan interface{}),
+		err:    make(chan error),
+	}
+
+	go func() {
+		select {
+		case val := <-p.result:
+			newPromise.result <- val
+
+		case err := <-p.err:
+			res := fn(err)
+
+			if p, ok := res.(*Promise); ok {
+				newPromise.result = p.result
+				newPromise.err = p.err
+			} else {
+				newPromise.err <- err
+			}
+		}
+	}()
+
+	return newPromise
 }
