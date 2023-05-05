@@ -154,3 +154,16 @@ func (p *promise) Finally(fn func()) *promise {
 
 	return p
 }
+
+// Await blocks the execution of the program until the promise resolves or rejects,
+// and returns either the resolved value or an error.
+// It returns an error only if the promise was rejected, and the resolved value otherwise.
+func (p *promise) Await() (interface{}, error) {
+	<-p.awaitChan
+
+	if p.state == rejected {
+		return nil, p.err
+	}
+
+	return p.result, nil
+}
