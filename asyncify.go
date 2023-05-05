@@ -73,7 +73,7 @@ func (p *Promise) Then(fn func(interface{}) interface{}) *Promise {
 // and the new promise returned by this method will be resolved or rejected based
 // on the result of the callback.
 func (p *Promise) Catch(fn func(error) interface{}) *Promise {
-	newPromise := &Promise{
+	promise := &Promise{
 		result: make(chan interface{}),
 		err:    make(chan error),
 	}
@@ -81,19 +81,19 @@ func (p *Promise) Catch(fn func(error) interface{}) *Promise {
 	go func() {
 		select {
 		case val := <-p.result:
-			newPromise.result <- val
+			promise.result <- val
 
 		case err := <-p.err:
 			res := fn(err)
 
 			if p, ok := res.(*Promise); ok {
-				newPromise.result = p.result
-				newPromise.err = p.err
+				promise.result = p.result
+				promise.err = p.err
 			} else {
-				newPromise.err <- err
+				promise.err <- err
 			}
 		}
 	}()
 
-	return newPromise
+	return promise
 }
