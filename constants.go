@@ -1,7 +1,7 @@
 package asyncify
 
 const (
-	pending promiseState = iota
+	pending PromiseState = iota
 	fulfilled
 	rejected
 )

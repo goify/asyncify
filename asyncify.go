@@ -8,62 +8,62 @@ package asyncify
 // that allow for chaining and handling of the eventual fulfillment or rejection of the promise.
 // The Promise object also provides a blocking `Await` method that can be used to wait for the
 // promise to be resolved or rejected.
-func Promise(executor func(resolve func(interface{}), reject func(error))) *promise {
-	p := &promise{
+func Promise(executor func(resolve func(interface{}), reject func(error))) *PromiseStruct {
+	promise := &PromiseStruct{
 		state:     pending,
 		awaitChan: make(chan struct{}),
 	}
 
 	resolve := func(result interface{}) {
-		if p.state != pending {
+		if promise.state != pending {
 			return
 		}
 
-		if p.thenFn != nil {
-			p.result = p.thenFn(result)
+		if promise.thenFn != nil {
+			promise.result = promise.thenFn(result)
 		} else {
-			p.result = result
+			promise.result = result
 		}
 
-		p.state = fulfilled
+		promise.state = fulfilled
 
-		if p.finallyFn != nil {
-			p.finallyFn()
+		if promise.finallyFn != nil {
+			promise.finallyFn()
 		}
 
-		close(p.awaitChan)
+		close(promise.awaitChan)
 	}
 
 	reject := func(err error) {
-		if p.state != pending {
+		if promise.state != pending {
 			return
 		}
 
-		if p.catchFn != nil {
-			p.result = p.catchFn(err)
+		if promise.catchFn != nil {
+			promise.result = promise.catchFn(err)
 		} else {
-			p.err = err
+			promise.err = err
 		}
 
-		p.state = rejected
+		promise.state = rejected
 
-		if p.finallyFn != nil {
-			p.finallyFn()
+		if promise.finallyFn != nil {
+			promise.finallyFn()
 		}
 
-		close(p.awaitChan)
+		close(promise.awaitChan)
 	}
 
 	go executor(resolve, reject)
 
-	return p
+	return promise
 }
 
 // Then registers a callback function to be called when the promise is resolved. If the promise is already resolved, the callback is called immediately with the resolved value. If the promise is rejected, the callback is skipped.
 // The callback function takes one argument, the resolved value of the promise, and should return a value or a new promise that will be resolved with that value.
 // Returns a new promise that is resolved with the return value of the callback function or rejected with the same reason as the original promise, if the callback function throws an error.
-func (p *promise) Then(fn func(interface{}) interface{}) *promise {
-	Promise := &promise{
+func (p *PromiseStruct) Then(fn func(interface{}) interface{}) *PromiseStruct {
+	promise := &PromiseStruct{
 		state:     pending,
 		awaitChan: make(chan struct{}),
 	}
@@ -72,42 +72,43 @@ func (p *promise) Then(fn func(interface{}) interface{}) *promise {
 
 	if p.state == fulfilled {
 		if p.thenFn != nil {
-			Promise.result = p.thenFn(p.result)
+			promise.result = p.thenFn(p.result)
 		} else {
-			Promise.result = p.result
+			promise.result = p.result
 		}
 
-		Promise.state = fulfilled
+		promise.state = fulfilled
 
 		if p.finallyFn != nil {
 			p.finallyFn()
 		}
 
-		close(Promise.awaitChan)
+		close(promise.awaitChan)
+
 	} else if p.state == rejected {
 		if p.catchFn != nil {
-			Promise.result = p.catchFn(p.err)
+			promise.result = p.catchFn(p.err)
 		} else {
-			Promise.err = p.err
+			promise.err = p.err
 		}
 
-		Promise.state = rejected
+		promise.state = rejected
 
 		if p.finallyFn != nil {
 			p.finallyFn()
 		}
 
-		close(Promise.awaitChan)
+		close(promise.awaitChan)
 	}
 
-	return Promise
+	return promise
 }
 
 // Catch registers a callback function to be called when the promise is rejected. If the promise is already rejected, the callback is called immediately with the rejection reason. If the promise is resolved, the callback is skipped.
 // The callback function takes one argument, the rejection reason of the promise, and should return a value or a new promise that will be resolved with that value.
 // Returns a new promise that is resolved with the return value of the callback function or rejected with the same reason as the original promise, if the callback function throws an error.
-func (p *promise) Catch(fn func(error) interface{}) *promise {
-	Promise := &promise{
+func (p *PromiseStruct) Catch(fn func(error) interface{}) *PromiseStruct {
+	promise := &PromiseStruct{
 		state:     pending,
 		awaitChan: make(chan struct{}),
 	}
@@ -115,55 +116,55 @@ func (p *promise) Catch(fn func(error) interface{}) *promise {
 	p.catchFn = fn
 
 	if p.state == fulfilled {
-		Promise.result = p.result
-		Promise.state = fulfilled
+		promise.result = p.result
+		promise.state = fulfilled
 
 		if p.finallyFn != nil {
 			p.finallyFn()
 		}
 
-		close(Promise.awaitChan)
+		close(promise.awaitChan)
 	} else if p.state == rejected {
 		if p.catchFn != nil {
-			Promise.result = p.catchFn(p.err)
+			promise.result = p.catchFn(p.err)
 		} else {
-			Promise.err = p.err
+			promise.err = p.err
 		}
 
-		Promise.state = rejected
+		promise.state = rejected
 
 		if p.finallyFn != nil {
 			p.finallyFn()
 		}
 
-		close(Promise.awaitChan)
+		close(promise.awaitChan)
 	}
 
-	return Promise
+	return promise
 }
 
 // Finally registers a callback function to be called when the promise is either resolved or rejected. If the promise is already resolved or rejected, the callback is called immediately.
 // The callback function takes no arguments and should not return anything.
 // Returns the same promise instance to allow for chaining of methods.
-func (p *promise) Finally(fn func()) *promise {
-	p.finallyFn = fn
+func (promise *PromiseStruct) Finally(fn func()) *PromiseStruct {
+	promise.finallyFn = fn
 
-	if p.state != pending {
-		p.finallyFn()
+	if promise.state != pending {
+		promise.finallyFn()
 	}
 
-	return p
+	return promise
 }
 
 // Await blocks the execution of the program until the promise resolves or rejects,
 // and returns either the resolved value or an error.
 // It returns an error only if the promise was rejected, and the resolved value otherwise.
-func (p *promise) Await() (interface{}, error) {
-	<-p.awaitChan
+func (promise *PromiseStruct) Await() (interface{}, error) {
+	<-promise.awaitChan
 
-	if p.state == rejected {
-		return nil, p.err
+	if promise.state == rejected {
+		return nil, promise.err
 	}
 
-	return p.result, nil
+	return promise.result, nil
 }

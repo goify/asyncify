@@ -1,9 +1,9 @@
 package asyncify
 
-type promiseState int
+type PromiseState int
 
-type promise struct {
-	state     promiseState
+type PromiseStruct struct {
+	state     PromiseState
 	result    interface{}
 	err       error
 	thenFn    func(interface{}) interface{}
