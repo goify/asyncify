@@ -5,7 +5,7 @@
 ![Go version](https://img.shields.io/github/go-mod/go-version/iamando/asyncify)
 [![GoDoc](https://godoc.org/github.com/iamando/asyncify?status.svg)](https://godoc.org/github.com/iamando/asyncify)
 
-Package for working with asynchronous programming in Go. It provides utilities and tools for converting synchronous code into asynchronous code, managing concurrency, handling errors and timeouts, and more.
+This is a Go module that provides an implementation of Promises, similar to those in JavaScript, including support for then, catch, and finally. It also allows for Await to be used to block the execution of the program until the promise resolves or rejects.
 
 ## Support
 
