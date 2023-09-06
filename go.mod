@@ -1,3 +1,3 @@
-module github.com/iamando/asyncify
+module github.com/goify/asyncify
 
 go 1.19
